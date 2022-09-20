@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Select from 'react-select'
 import axios from 'axios';
 
@@ -6,11 +6,25 @@ interface IStates {
   id: number;
   nome: string;
   sigla: string;
+  regiao: {
+    id: number;
+    sigla: string;
+    nome: string;
+  }
 }
 
 interface ICity {
   id: number;
   nome: string;
+  microrregiao: {
+    id: number;
+    nome: string;
+    mesorregiao: {
+      id: number;
+      nome: string;
+      UF: IStates;
+    }
+  }
 }
 
 const App = () => {
@@ -22,6 +36,7 @@ const App = () => {
   const [city, setCity] = useState<ICity | null>();
 
   useEffect(() => {
+    setState(null);
     getData();
   }, [])
 
@@ -60,18 +75,31 @@ const App = () => {
     control: (provided: any) => ({
       ...provided,
       padding: 8,
-      color: 'red'
     }),
+
+    placeholder: (provided: any) => ({
+      ...provided,
+      color: '#CCC',
+      fontWeight: '500',
+    }),
+
+    singleValue: (provided: any) => ({
+      ...provided,
+      color: '#545454',
+      fontWeight: '500',
+    }),
+
     option: (provided: any, state: any) => ({
       ...provided,
       borderBottom: '1px solid #CCC',
+      fontWeight: '500',
       color: state.isSelected ? 'white' : '#757575',
       padding: 15,
     }),
   }
 
   return (
-    <div className='w-screen h-screen flex justify-center items-center'>
+    <div className='w-screen h-screen flex flex-col justify-center items-center'>
       <div className='w-[40%] bg-red flex gap-4'>
 
         <div className='w-[50%]'>
@@ -91,13 +119,23 @@ const App = () => {
             styles={customStylesSelect}
             isDisabled={cities.length > 0 ? false : true}
             placeholder="Selecione uma opção"
-            onChange={(value: any) => setCity(value)}
+            onChange={(value: any) => { setCity(value), console.log(value); }}
           />
         </div>
-
       </div>
+
+      {city &&
+        <div className='w-[40%] mt-[2rem] border p-4 rounded'>
+          <h1 className='text-center font-bold text-[#575757] border-b pb-4'>
+            {city.microrregiao.mesorregiao.UF.regiao.nome}
+          </h1>
+          <div className='text-center my-[1rem] text-[#4b4b4b]'>
+            <span className=''>{city.microrregiao.mesorregiao.nome}</span> - <span>{city.microrregiao.mesorregiao.UF.regiao.nome}</span>
+          </div>
+        </div>
+      }
     </div>
   )
 }
 
-export default App
+export default App;
